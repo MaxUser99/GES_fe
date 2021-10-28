@@ -3,13 +3,13 @@ import { ThemeProvider } from "@material-ui/styles";
 import React from "react";
 import theme from "./theme";
 import Routes from "./routes";
+import { StoreContext, stores } from "./stores";
 
-const StoreContext = React.createContext(null);
 
 function App() {
   return (
     <React.StrictMode>
-      <StoreContext.Provider value={null}>
+      <StoreContext.Provider value={stores}>
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <Routes />
