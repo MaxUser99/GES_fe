@@ -1,5 +1,4 @@
-import { CssBaseline } from "@material-ui/core";
-import { ThemeProvider } from "@material-ui/styles";
+import { CssBaseline, ThemeProvider } from "@mui/material";
 import React from "react";
 import theme from "./theme";
 import Routes from "./routes";
