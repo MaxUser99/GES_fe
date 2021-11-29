@@ -25,7 +25,7 @@ export const Header = ({ title, hideProfile }: IProps) => {
         {title || 'GES'}
       </Link>
       {
-        hideProfile ||
+        !hideProfile &&
         <Button
           onClick={goToLogin}
           variant='contained'
