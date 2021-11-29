@@ -1,9 +1,11 @@
+import { useContext } from 'react';
 import { Button, Link, Paper, TextField, Typography } from "@mui/material";
 import { RouteComponentProps, Link as RouterLink } from "@reach/router";
 import { SubmitHandler, useForm, Controller } from 'react-hook-form';
 import { observer } from "mobx-react";
-import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import { StoreContext } from '../../stores';
 import { Form } from '../../components/Form';
 import { Scene } from '../../components/Scene';
 
@@ -21,12 +23,15 @@ const schema = yup.object({
 
 
 const Login = (props: IProps) => {
+  const { userStore: { login } } = useContext(StoreContext);
+
   const { control, formState: { errors }, handleSubmit } = useForm<IFormData>({
     resolver: yupResolver(schema)
   });
 
-  const onSubmit: SubmitHandler<IFormData> = data => {
-    console.log(data);
+  const onSubmit: SubmitHandler<IFormData> = async (data) => {
+    const isLoggedIn = await login(data.login, data.password);
+    console.log({ isLoggedIn });
   }
 
   return (
