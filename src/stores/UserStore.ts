@@ -2,6 +2,11 @@ import { makeAutoObservable } from 'mobx';
 import { Interest } from '../models/Interest';
 import { RootStore } from './RootStore';
 
+interface IRegisterResponse {
+  userID: string;
+  link: string;
+}
+
 export class UserStore {
   constructor(readonly rootStore: RootStore) {
     makeAutoObservable(this);
@@ -14,54 +19,48 @@ export class UserStore {
       .catch(() => false);
   }
 
-  signUp = async (email: string, password: string) => {
+  register = (email: string, password: string) => {
     const { api } = this.rootStore;
-    console.log('signup', email, password);
+    const payload = JSON.stringify({ email, password });
+    return api.post<IRegisterResponse>('/user/register', payload)
+      .then(({ data }) => {
+        /* should remove this statement */
+        if (typeof data === 'string') {
+          return JSON.parse(data);
+        }
 
-    const response = await api.post<{ userID: string, link: string }>(
-      '/user/register', JSON.stringify({ email, password })
-    ).then(({ data, status }) => {
-      if (status === 201) {
-        console.log('data: ', data.link, data.userID);
         return data;
-      }
+      });
+  }
 
-      throw new Error('no confirm link');
-    }).catch(() => { console.error('signup error'); });
+  confirmLink = (link: string) => {
+    const { api } = this.rootStore;
+    return api.post(`/user/confirm/${link}`)
+      .then(() => true)
+  }
 
-    if (!response) return;
+  getInterests = () => {
+    const { api } = this.rootStore;
+    return api.get<Interest[]>('/interests')
+      .then(({ data }) => data.map(({ ID, Name }: any) => new Interest({ id: ID, name: Name })));
+  }
 
-    // return;
-    // should confirm link
-    // const isLinkConfirmed = await api.post(`/user/confirm/${response.link}`)
-    //   .then(() => true)
-    //   .catch(() => {
-    //     console.error('link confirmation error');
-    //     return false;
-    //   });
+  asignInterest = (userId: number | string, interest: Interest) => {
+    const { api } = this.rootStore;
+    return api.post(`/user/${userId}/interest/${interest.name}`)
+      .then(() => true);
+  }
 
-    // if (!isLinkConfirmed) return;
-
-    // // should post interest
-
-    // const interests = await api.get<Interest[]>('/interests', {
-    //   transformResponse: [data => {
-    //     return data.map(({ ID, Name }: any) => new Interest({ id: ID, name: Name }));
-    //   }]
-    // }).then(({ data }) => data)
-    //   .catch(() => {
-    //     console.error('get interests error');
-    //     return [];
-    //   });
-
-    // if (!interests.length) return;
-
-    // const isInterestAsigned = await api.post(`/user/${response.userID}/interest/${interests[0].id}`)
-    //   .then(() => true)
-    //   .catch(() => false);
-
-    // if (!isInterestAsigned) return;
-
-    // return this.login(email, password);
+  signUp = async (email: string, password: string) => {
+    try {
+      const registerResponse = await this.register(email, password);
+      await this.confirmLink(registerResponse.link);
+      const interests = await this.getInterests();
+      await this.asignInterest(registerResponse.userID, interests[0]);
+      return this.login(email, password);
+    } catch (e) {
+      console.error('signup error: ', e);
+      return false;
+    }
   }
 }

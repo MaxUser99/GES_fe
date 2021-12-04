@@ -1,10 +1,11 @@
 import { useContext } from 'react';
-import { Button, Grid, Link, Paper, TextField, Typography } from '@mui/material';
-import { RouteComponentProps, Link as RouterLink } from "@reach/router";
 import { observer } from "mobx-react";
+import { RouteComponentProps, Link as RouterLink } from "@reach/router";
 import { SubmitHandler, useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
+import { Link, Paper, TextField, Typography } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
 import { StoreContext } from '../../stores';
 import { Form } from '../../components/Form';
 import { Scene } from '../../components/Scene';
@@ -26,12 +27,13 @@ const schema = yup.object({
 
 const SignUp = (props: IProps) => {
   const { userStore: { signUp } } = useContext(StoreContext);
-  const { control, formState: { errors }, handleSubmit } = useForm<IFormData>({
-    resolver: yupResolver(schema)
+  const { control, formState: { errors, isSubmitting }, handleSubmit } = useForm<IFormData>({
+    resolver: yupResolver(schema),
   });
 
-  const onSubmit: SubmitHandler<IFormData> = data => {
-    signUp(data.login, data.password);
+  const onSubmit: SubmitHandler<IFormData> = async data => {
+    const isSignedUp = await signUp(data.login, data.password);
+    console.log({ isSignedUp });
   }
 
   return (
@@ -44,7 +46,6 @@ const SignUp = (props: IProps) => {
           <Typography className='title' sx={{ mb: 1.5 }}>
             Sign up
           </Typography>
-
 
           <Controller
             control={control}
@@ -92,7 +93,15 @@ const SignUp = (props: IProps) => {
             )}
           />
 
-          <Button type='submit' variant='contained' sx={{ mb: 1.5 }} fullWidth>Create account</Button>
+          <LoadingButton
+            type='submit'
+            variant='contained'
+            loading={isSubmitting}
+            loadingIndicator='Loading...'
+            sx={{ mb: 1.5 }}
+            fullWidth>
+            Create account
+          </LoadingButton>
           <Link component={RouterLink} to='/login'>
             Login in
           </Link>
