@@ -1,6 +1,6 @@
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { Button, Link, Paper, TextField, Typography } from "@mui/material";
-import { RouteComponentProps, Link as RouterLink } from "@reach/router";
+import { RouteComponentProps, Link as RouterLink, navigate } from "@reach/router";
 import { SubmitHandler, useForm, Controller } from 'react-hook-form';
 import { observer } from "mobx-react";
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -23,16 +23,19 @@ const schema = yup.object({
 
 
 const Login = (props: IProps) => {
-  const { userStore: { login } } = useContext(StoreContext);
+  const { userStore: { login, isLoggedIn } } = useContext(StoreContext);
 
   const { control, formState: { errors }, handleSubmit } = useForm<IFormData>({
     resolver: yupResolver(schema)
   });
 
   const onSubmit: SubmitHandler<IFormData> = async (data) => {
-    const isLoggedIn = await login(data.login, data.password);
-    console.log({ isLoggedIn });
+    login(data.login, data.password);
   }
+
+  useEffect(() => {
+    if (isLoggedIn) navigate('/plot');
+  }, [isLoggedIn])
 
   return (
     <Scene hideProfile>

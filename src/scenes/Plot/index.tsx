@@ -3,6 +3,7 @@ import { observer } from "mobx-react";
 import React, { useContext, useEffect } from "react";
 import { StoreContext } from "../../stores";
 import * as d3 from "d3";
+import { Scene } from '../../components/Scene';
 
 interface IProps extends RouteComponentProps { }
 
@@ -66,10 +67,12 @@ const Plot = (props: IProps) => {
   }, [graph]);
 
   return (
-    <div>
-      <p>plot component</p>
-      <svg ref={svgRef} width={svgWidth} height={svgHeight} />
-    </div>
+    <Scene>
+      <div>
+        <p>plot component</p>
+        <svg ref={svgRef} width={svgWidth} height={svgHeight} />
+      </div>
+    </Scene>
   );
 }
 

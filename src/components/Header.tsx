@@ -1,6 +1,8 @@
 import { Login } from "@mui/icons-material";
 import { Button, Link, Paper, Typography } from "@mui/material";
 import { navigate, Link as RouterLink } from "@reach/router";
+import { useContext } from 'react';
+import { StoreContext } from '../stores';
 
 interface IProps {
   title?: string;
@@ -8,6 +10,8 @@ interface IProps {
 }
 
 export const Header = ({ title, hideProfile }: IProps) => {
+  const { userStore: { isLoggedIn } } = useContext(StoreContext);
+
   const goToLogin = () => navigate('/login');
 
   return (
@@ -25,13 +29,16 @@ export const Header = ({ title, hideProfile }: IProps) => {
         {title || 'GES'}
       </Link>
       {
-        !hideProfile &&
+        !hideProfile && !isLoggedIn &&
         <Button
           onClick={goToLogin}
           variant='contained'
           sx={{ marginLeft: 'auto' }}>
           Login<Login fontSize='small' />
         </Button>
+      }
+      {
+        isLoggedIn && <Typography sx={{ marginLeft: 'auto'}}>Юзер успішно авторизований</Typography>
       }
     </Paper>
   );

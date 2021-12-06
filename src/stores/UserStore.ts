@@ -8,13 +8,15 @@ interface IRegisterResponse {
 }
 
 export class UserStore {
+  isLoggedIn = false;
+
   constructor(readonly rootStore: RootStore) {
     makeAutoObservable(this);
   }
 
   login = async (email: string, password: string) => {
     const { api } = this.rootStore;
-    return api.post('/user/login', JSON.stringify({ email, password }))
+    this.isLoggedIn = await api.post('/user/login', JSON.stringify({ email, password }))
       .then(() => true)
       .catch(() => false);
   }
