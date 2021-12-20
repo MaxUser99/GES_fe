@@ -1,4 +1,4 @@
-import { makeAutoObservable } from 'mobx';
+import { makeAutoObservable, runInAction } from 'mobx';
 import { Interest } from '../models/Interest';
 import { RootStore } from './RootStore';
 
@@ -16,9 +16,10 @@ export class UserStore {
 
   login = async (email: string, password: string) => {
     const { api } = this.rootStore;
-    this.isLoggedIn = await api.post('/user/login', JSON.stringify({ email, password }))
+    const isLoggedIn = await api.post('/user/login', JSON.stringify({ email, password }))
       .then(() => true)
       .catch(() => false);
+    runInAction(() => { this.isLoggedIn = isLoggedIn });
   }
 
   register = (email: string, password: string) => {

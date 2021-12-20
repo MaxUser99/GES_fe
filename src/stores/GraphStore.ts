@@ -5,7 +5,6 @@ import { RootStore } from "./RootStore";
 export class GraphStore {
   isLoading: boolean = false;
   graph?: Graph | null = null;
-  graphJSON?: string = '';
 
   constructor(readonly rootStore: RootStore) {
     makeAutoObservable(this);
@@ -15,10 +14,9 @@ export class GraphStore {
     try {
       this.isLoading = true;
       const response = await this.rootStore.api.get('/node/name/GES');
-      this.graphJSON = typeof response.data === 'string' ? response.data : '';
-      const parsed = JSON.parse(this.graphJSON);
-      this.graph = this.parseGraph(parsed);
-      console.log('response: ', response, JSON.parse(response.data as string));
+      this.graph = this.parseGraph(response.data);
+      console.log('response: ', response);
+      console.log('graph: ', this.graph);
       this.isLoading = false;
     } finally {
       this.isLoading = false;
